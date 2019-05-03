@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Defect Reporter</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Defect Reporter</h1>
+            <div class="jumbotron">
+                <h3>Add New Defect</h3>
+                    <form id="riskInputForm"  action='/reports' method='post'>
+                        <div class="form-group">
+                            <label for="nameInput">Name</label>
+                            <input type="text" class="form-control" name="name" placeholder="Name the defect...">
+                        </div>
+                        <div class="form-group">
+                            <label for="descInput">Description</label>
+                            <input type="text" class="form-control" name="description" placeholder="Describe the defect...">
+                        </div> 
+                        <div class="form-group">
+                            <label for="severityInput">Severity</label>
+                            <select name="severity" class="form-control">
+                            <option value="Low">Low</option>
+                            <option value="Medium">Medium</option>
+                            <option value="High">High</option>
+                            </select>
+                        </div> 
+                        <div class="form-group">
+                            <label for="assignedToInput">Assigned To</label>
+                            <input type="text" class="form-control" name="assignedto" placeholder="Enter name...">
+                        </div> 
+                        <button type="submit" class="btn btn-primary">Add</button>
+                    </form>
+            </div>
+        <div class="col-lg-12">
+            <div id="reportsList" name="reportsList"></div>
+        </div>
+        <div class="footer">
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script>
+    const getReports = ()=>{
+    fetch('/getReports',{method : "get"}).then((response)=>{
+        return response.json();
+    }).then((data)=>{
+        displayReports(data);  
+    });
+    }
+
+    getReports();
+
+    const displayReports = (data)=>{
+        for (var i = 0; i < data.length; i++) {
+            var name = data[i].name;
+            var id =data[i]._id;
+            var desc = data[i].description;
+            var severity = data[i].severity;
+            var assignedTo = data[i].assignedto;
+            var status = data[i].status;
+
+            reportsList.innerHTML += '<div class="well">'+
+                                    '<h3>Risk Name: ' + name + '</h3>'+
+                                    '<h6>Risk ID: ' + id + '</h6>'+
+                                    '<p><span class="label label-info">' + status + '</span></p>'+
+                                    '<h3>' + desc + '</h3>'+
+                                    '<p><span class="glyphicon glyphicon-tag"></span>&nbsp' + severity + '</p>'+
+                                    '<p><span class="glyphicon glyphicon-user"></span>&nbsp' + assignedTo + '</p>'+
+                                    '<a href="" onClick="setStatusClosed(\''+id+'\')" class="btn btn-warning">Close</a>'+
+                                    '<a href="" onClick="deleteReport(\''+id+'\')" class="btn btn-danger">Delete</a>'+
+                                    '</div';
+        }
+    }
+    
+    function setStatusClosed(id) {
+        fetch('/reports/'+ id +'',{method : "put"}).then((response)=>{
+            return response;
+        getReports();
+        })
+    }
+    
+
+    function deleteReport(id) {
+        fetch('/reports/'+ id +'',{method :"delete"}).then((response)=>{
+            return response;
+        getReports();
+        })
+    }
+
+    </script>
+</body>
+</html>
